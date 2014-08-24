@@ -1,0 +1,138 @@
+<apex:page sidebar="false" showHeader="false" contentType="text/html" controller="SiteLoginController" action="{!doRedirect}" >
+    <link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.CCBApp, '/css/LoginModule.css')}" />
+    <apex:includeScript value="{!URLFOR($Resource.CCBApp, '/jquery/jquery-183.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.CCBApp, '/js/LoginModule.js')}"/>
+    <style>
+      .custPopup{
+            background-color: white;
+            border-width: 2px;
+            border-style: solid;
+            z-index:9999;
+            left: 50%;
+            padding:10px;
+            position: absolute;
+            /* These are the 3 css properties you will need to change so the popup 
+            displays in the center of the screen. First set the width. Then set 
+            margin-left to negative half of what the width is. You can add 
+            the height property for a fixed size pop up if you want.*/
+            width: 520px;
+            margin-left: -250px;
+            top:100px;
+        }
+        .popupBackground{
+            background-color:black;
+            opacity: 0.20;
+            filter: alpha(opacity = 20);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 9998;
+        }
+        </style>
+    <body style="margin-left:10%;margin-right:10%;">
+    <apex:outputPanel styleClass="container" layout="block">
+        <br/>
+        <apex:outputPanel layout="block">
+            <apex:image url="{!URLFOR($Resource.CCBApp, 'Logo.png')}" />
+        </apex:outputPanel> <br/>
+        <c:SignInComponent compNo="1">
+            <apex:form id="loginForm" forceSSL="true">
+                <br/>
+                <span style="padding-left:10px;"><p class="message infoM4" style="font-size:11px;"><img src="/img/msg_icons/info16.png" height="12px" width="12px"/>&nbsp;{!userEmail}</p></span>
+                <br/>
+                <apex:outputPanel layout="block" styleClass="wizSignIn">
+                      <table>
+                           <tr>
+                               <td style="text-align:right"> <label class="disabled" >Username : </label></td>
+                               <td><label >{!username}</label></td>
+                           </tr>
+                           <tr>
+                               <td style="text-align:right"><label >Password : </label></td>
+                               <td>
+                                   <apex:inputSecret id="password" value="{!password}" size="25"/><br/>
+                                   <span id="pwdErr" style="color:red; font-weight:bold;font-size:11px"> {!errorMSG}</span>
+                               </td>
+                           </tr>
+                           <tr>
+                               <td style="text-align:right"><label >Verification Code : </label></td>
+                               <td>
+                                   <apex:inputText id="verifiaction" value="{!verification}" size="25"/><br/>
+                                   <span id="vfErr" style="color:red; font-weight:bold;font-size:11px"> {!errorMSGVF}</span> 
+                               </td>
+                           </tr>
+                       </table>
+                    <apex:outputText style="color:red" value="{!result}"/><br/>
+                    <!--<a href="/apex/ForgotPassword" style="color:#08C">Forgot Password?</a>-->
+                    <span style="width: 250px; padding-left: 200px"><apex:commandButton action="{!login}" styleClass="btn-primary1" value="Sign In" id="loginButton" onclick="return validateActivation();" /></span>
+                    <br/>
+                    <span><apex:commandLink value="Resend Verification Code" action="{!doResend}" style="height:25px;color:#08C" immediate="true"/> </span>
+                </apex:outputPanel> 
+                 <!--<apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!backPopUp}" />
+               
+                  <apex:outputPanel styleClass="custPopup"  layout="block" rendered="{!showPop}">
+                           <apex:outputPanel styleClass="page-header" layout="block">
+                                <apex:image url="{!URLFOR($Resource.CCBApp, 'Logo.png')}" />
+                            </apex:outputPanel> <br/>
+                            <span style="font-weight:bold">Please update your security question here. </span><br/><br/>
+                            <apex:pageBlock title="Security Question">
+                          <table>
+                              <tr>
+                                  <td style="text-align:right"><apex:outputLabel value="Security Question :"></apex:outputLabel></td>
+                                       <script>
+                                        $(".mainTitle").css({"font-size":"14px","font-weight":"normal"});
+                                       </script>
+                                  <td>
+                                      <apex:selectList size="1" id="questionlist" value="{!questionlist}" style="width:350px">
+                                        <apex:selectOption itemLabel="--None--" itemValue="--None--"></apex:selectOption>
+                                        <apex:selectOption itemLabel="What is your pet's name?" itemValue="What is your pet's name?"></apex:selectOption>
+                                        <apex:selectOption itemLabel="What is your mother's maiden name?" itemValue="What is your mother's maiden name?"></apex:selectOption>
+                                        <apex:selectOption itemLabel="In what city were you born?" itemValue="In what city were you born?"></apex:selectOption>
+                                        <apex:selectOption itemLabel="In what city was your first job?" itemValue="In what city was your first job?"></apex:selectOption>
+                                        <apex:selectOption itemLabel="What is the name of your favorite childhood friend?" itemValue="What is the name of your favorite childhood friend?"></apex:selectOption>
+                                        <apex:selectOption itemLabel="In what city did you meet your spouse/significant other?" itemValue="In what city did you meet your spouse/significant other?"></apex:selectOption>
+                                        <apex:selectOption itemLabel="What was your childhood nickname?" itemValue="What was your childhood nickname?"></apex:selectOption>
+                                      </apex:selectList>
+                                  </td>
+                             
+                              </tr>
+                              <tr>
+                                   <td></td>
+                                   <td><strong><span style="color:red;font-size:12px" id="securityQuestionError"></span></strong></td>
+                              </tr>
+                              <tr>
+                                    <td style="text-align:right"><apex:outputLabel value="Answer :"></apex:outputLabel></td>
+                                    <td><apex:inputText style="width:350px" id="answer" value="{!answer}"/></td>
+                              </tr>
+                              <tr>
+                                    <td></td>
+                                    <td><strong><span style="color:red;font-size:12px" id="securityAnswerError"></span></strong></td>
+                              </tr>
+                               <tr>
+                                    <td></td>
+                                    <td>
+                                        <div style="float:right">
+                                         <apex:commandButton value="Save"  styleClass="btn-primary1" onclick="return validateProfile()" action="{!updateQuestion}" style="font-size:11px"/>
+                                        <apex:commandButton value="Cancel" action="{!hidePopUp}" styleClass="btn-primary1"/>
+                                         </div>
+                                    </td>
+                                 
+                              </tr>
+                               
+                          </table>
+                          </apex:pageBlock><br/>
+                  </apex:outputPanel> -->
+            </apex:form>  
+        </c:SignInComponent> 
+        <br/>
+        <div style="width:100%; font-size:11px;margin-left:5px;margin-right:10px;">
+            <span>
+                {!$Label.LOGIN_DISCLAIMER}
+            </span>
+        </div>
+    </apex:outputPanel><br/><br/>
+    <div style="border-width: 1px; border-style: solid;color:#DCDBDB"></div>
+    <p class="p1">Copyright © 2003-2013 Caribbean Credit Bureau. All rights reserved.</p>
+    </body>
+</apex:page>
